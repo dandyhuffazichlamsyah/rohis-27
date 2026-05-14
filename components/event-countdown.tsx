@@ -3,7 +3,14 @@
 import { CalendarDays } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-const nextEvent = {
+type Kegiatan = {
+  id: string;
+  nama_kegiatan: string;
+  tanggal: string;
+  lokasi: string;
+};
+
+const fallbackEvent = {
   name: "Pesantren Kilat Ramadhan",
   date: "2026-03-05T07:00:00+07:00",
   location: "Masjid SMAN 27 Jakarta",
@@ -22,10 +29,33 @@ function getRemainingTime(targetDate: string) {
 }
 
 export function EventCountdown() {
+  const [nextEvent, setNextEvent] = useState(fallbackEvent);
+
+  useEffect(() => {
+    fetch("/api/public/kegiatan", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((result) => {
+        if (result.data?.length) {
+          const now = Date.now();
+          const upcoming = result.data
+            .filter((k: Kegiatan) => new Date(k.tanggal).getTime() > now)
+            .sort((a: Kegiatan, b: Kegiatan) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime())[0];
+          if (upcoming) {
+            setNextEvent({
+              name: upcoming.nama_kegiatan,
+              date: upcoming.tanggal,
+              location: upcoming.lokasi,
+            });
+          }
+        }
+      })
+      .catch(() => { });
+  }, []);
+
   const [remaining, setRemaining] = useState(() => getRemainingTime(nextEvent.date));
   const formattedDate = useMemo(
     () => new Intl.DateTimeFormat("id-ID", { dateStyle: "full", timeStyle: "short" }).format(new Date(nextEvent.date)),
-    [],
+    [nextEvent.date],
   );
 
   useEffect(() => {
@@ -34,7 +64,7 @@ export function EventCountdown() {
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [nextEvent.date]);
 
   return (
     <section className="rounded-[2rem] border border-emerald-900/10 bg-white/80 p-6 shadow-glow backdrop-blur">

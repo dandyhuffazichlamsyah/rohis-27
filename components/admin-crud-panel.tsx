@@ -262,6 +262,14 @@ export function AdminCrudPanel() {
                 <option value="Kajian">Kajian</option>
                 <option value="Sosial">Sosial</option>
                 <option value="Shalat">Shalat</option>
+                <option value="Pengajian">Pengajian</option>
+                <option value="PHBI">PHBI</option>
+                <option value="Mentoring">Mentoring</option>
+                <option value="Pesantren Kilat">Pesantren Kilat</option>
+                <option value="Mabit">Mabit</option>
+                <option value="Dakwah">Dakwah</option>
+                <option value="Lomba">Lomba</option>
+                <option value="Lainnya">Lainnya</option>
               </select>
               <input
                 name="tanggal"

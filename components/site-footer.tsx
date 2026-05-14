@@ -15,7 +15,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
         <div>
           <div className="flex items-center gap-3">
-            <img src="/logo-rohis.png" alt="Logo Rohis SMAN 27" className="h-11 w-11 rounded-2xl object-contain" />
+            <img src="/Logo-rohis.png" alt="Logo Rohis SMAN 27" className="h-11 w-11 rounded-2xl object-contain" />
             <div>
               <p className="font-display text-2xl font-bold">Rohis SMAN 27 Jakarta</p>
               <p className="text-sm text-emerald-100/70">Rohani Islam yang bertumbuh dalam ilmu, adab, dan ukhuwah.</p>
