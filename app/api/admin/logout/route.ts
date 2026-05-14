@@ -3,7 +3,7 @@ import { getCookieName } from "@/lib/auth";
 
 export async function POST(request: Request) {
   const url = new URL("/admin/login", request.url);
-  const response = NextResponse.redirect(url);
+  const response = NextResponse.redirect(url, 302);
   response.cookies.set(getCookieName(), "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
