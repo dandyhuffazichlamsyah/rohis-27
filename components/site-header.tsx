@@ -11,7 +11,6 @@ const navItems = [
   { href: "/galeri", label: "Galeri" },
   { href: "/pengurus", label: "Pengurus" },
   { href: "/kontak", label: "Kontak" },
-  { href: "/admin/login", label: "Login" },
 ];
 
 export function SiteHeader() {

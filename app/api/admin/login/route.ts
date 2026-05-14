@@ -1,5 +1,12 @@
 import { NextResponse } from "next/server";
 import { createSessionToken, getCookieName } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
+
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return "unknown";
+}
 
 export async function POST(request: Request) {
   const secret = process.env.ADMIN_COOKIE_SECRET;
@@ -7,6 +14,18 @@ export async function POST(request: Request) {
 
   if (!secret || !adminPassword) {
     return NextResponse.json({ message: "Autentikasi belum dikonfigurasi." }, { status: 503 });
+  }
+
+  // Rate limit: 5 attempts per IP per 15 minutes
+  const clientIp = getClientIp(request);
+  const rateLimit = checkRateLimit(`login:${clientIp}`, 5, 15 * 60 * 1000);
+
+  if (!rateLimit.allowed) {
+    const minutes = Math.ceil(rateLimit.retryAfterMs / 60000);
+    return NextResponse.json(
+      { message: `Terlalu banyak percobaan. Coba lagi dalam ${minutes} menit.` },
+      { status: 429 },
+    );
   }
 
   let payload: { password?: unknown };
@@ -18,6 +37,10 @@ export async function POST(request: Request) {
   }
 
   const password = typeof payload.password === "string" ? payload.password : "";
+
+  if (!password || password.length > 256) {
+    return NextResponse.json({ message: "Password tidak valid." }, { status: 400 });
+  }
 
   if (password !== adminPassword) {
     return NextResponse.json({ message: "Password salah." }, { status: 401 });

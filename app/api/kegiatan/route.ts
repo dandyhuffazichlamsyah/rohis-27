@@ -10,7 +10,10 @@ type KegiatanPayload = {
   deskripsi?: unknown;
 };
 
-const validJenis = new Set(["Kajian", "Sosial", "Shalat"]);
+const validJenis = new Set([
+  "Kajian", "Sosial", "Shalat", "Pengajian", "PHBI",
+  "Mentoring", "Pesantren Kilat", "Mabit", "Dakwah", "Lomba", "Lainnya",
+]);
 
 export async function GET() {
   const supabase = createSupabaseAdminClient();

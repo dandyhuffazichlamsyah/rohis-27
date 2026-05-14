@@ -1,45 +1,51 @@
 "use client";
 
-import { Send } from "lucide-react";
+import { MessageCircle, Send } from "lucide-react";
 import { FormEvent, useState } from "react";
 
 type SubmitState = "idle" | "loading" | "success" | "error";
+
+const WA_NUMBER = "6285777822270";
 
 export function ContactForm() {
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitState("loading");
     setMessage("");
 
     const formData = new FormData(event.currentTarget);
-    const payload = {
-      nama: String(formData.get("nama") ?? ""),
-      email: String(formData.get("email") ?? ""),
-      pesan: String(formData.get("pesan") ?? ""),
-    };
+    const nama = String(formData.get("nama") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const pesan = String(formData.get("pesan") ?? "").trim();
 
-    try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message ?? "Pesan gagal dikirim");
-      }
-
-      event.currentTarget.reset();
-      setSubmitState("success");
-      setMessage(result.message ?? "Pesan berhasil dikirim.");
-    } catch (error) {
+    if (nama.length < 3) {
       setSubmitState("error");
-      setMessage(error instanceof Error ? error.message : "Pesan gagal dikirim.");
+      setMessage("Nama minimal 3 karakter.");
+      return;
     }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setSubmitState("error");
+      setMessage("Email tidak valid.");
+      return;
+    }
+
+    if (pesan.length < 10) {
+      setSubmitState("error");
+      setMessage("Pesan minimal 10 karakter.");
+      return;
+    }
+
+    const waText = `*Pesan dari Website Rohis SMAN 27*\n\nNama: ${nama}\nEmail: ${email}\n\n${pesan}`;
+    const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waText)}`;
+
+    event.currentTarget.reset();
+    setSubmitState("success");
+    setMessage("Mengarahkan ke WhatsApp...");
+    window.open(waUrl, "_blank", "noopener,noreferrer");
   }
 
   return (
@@ -63,7 +69,7 @@ export function ContactForm() {
           </div>
         ) : null}
         <button disabled={submitState === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-900 px-6 py-3.5 text-sm font-bold text-white shadow-glow transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-70">
-          {submitState === "loading" ? "Mengirim..." : "Kirim Pesan"} <Send className="h-4 w-4" />
+          {submitState === "success" ? "Dibuka di WhatsApp" : "Kirim ke WhatsApp"} <MessageCircle className="h-4 w-4" />
         </button>
       </div>
     </form>
