@@ -134,7 +134,6 @@ export function GalleryManager() {
   function startEdit(img: Galeri) {
     setEditing(img);
     setPhotos([{ caption: img.caption, url: img.image_url }]);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function cancelEdit() {

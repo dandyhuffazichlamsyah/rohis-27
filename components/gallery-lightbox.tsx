@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function toDirectImageUrl(url: string): string {
   if (!url) return url;
@@ -16,6 +17,9 @@ type GaleriItem = {
   caption: string;
   image_url: string;
   created_at: string;
+  nama_kegiatan?: string | null;
+  tanggal?: string | null;
+  deskripsi?: string | null;
 };
 
 const demoItems = [
@@ -55,12 +59,15 @@ export function GalleryLightbox() {
       {!hasRealData && (
         <p className="mb-6 text-center text-xs text-emerald-950/40">Menampilkan galeri demo — tambahkan foto di admin untuk data real-time.</p>
       )}
-      <div className="columns-1 gap-5 sm:columns-2 lg:columns-3">
+      <motion.div className="columns-1 gap-5 sm:columns-2 lg:columns-3" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}>
         {items.map((item) => (
-          <button
+          <motion.button
             key={item.id}
+            variants={{ hidden: { opacity: 0, y: 30, scale: 0.95 }, visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: "easeOut" as const } } }}
+            whileHover={{ y: -6, scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setSelectedItem(item)}
-            className="group mb-5 w-full break-inside-avoid overflow-hidden rounded-[2rem] bg-cream text-left shadow-sm ring-1 ring-emerald-900/10 transition hover:-translate-y-1 hover:shadow-glow"
+            className="group mb-5 w-full break-inside-avoid overflow-hidden rounded-[2rem] bg-cream text-left shadow-sm ring-1 ring-emerald-900/10"
           >
             <div className="relative aspect-[4/3] overflow-hidden">
               <img
@@ -73,31 +80,48 @@ export function GalleryLightbox() {
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/70 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <h2 className="font-display text-2xl font-bold text-white">{item.caption}</h2>
+                {item.nama_kegiatan && <p className="mt-1 text-sm font-semibold text-gold">{item.nama_kegiatan}</p>}
                 <p className="mt-1 text-sm text-white/75">Klik untuk memperbesar.</p>
               </div>
             </div>
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
 
-      {selectedItem ? (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-emerald-950/85 p-4 backdrop-blur" role="dialog" aria-modal="true">
-          <div className="relative w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-glow">
-            <button onClick={() => setSelectedItem(null)} className="absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-950/50 text-white ring-1 ring-white/20" aria-label="Tutup galeri">
-              <X className="h-5 w-5" />
-            </button>
-            <img
-              src={toDirectImageUrl(selectedItem.image_url)}
-              alt={selectedItem.caption}
-              className="h-auto w-full object-cover"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://placehold.co/1200x800/emerald-900/gold?text=Gambar+tidak+tersedia"; }}
-            />
-            <div className="bg-cream p-6">
-              <h2 className="font-display text-2xl font-bold text-emerald-950">{selectedItem.caption}</h2>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <AnimatePresence>
+        {selectedItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-emerald-950/85 p-4 backdrop-blur"
+            role="dialog"
+            aria-modal="true"
+          >
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} transition={{ type: "spring" as const, stiffness: 300, damping: 25 }} className="relative w-full max-w-4xl overflow-hidden rounded-[2rem] bg-white shadow-glow">
+              <button onClick={() => setSelectedItem(null)} className="absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-950/50 text-white ring-1 ring-white/20" aria-label="Tutup galeri">
+                <X className="h-5 w-5" />
+              </button>
+              <img
+                src={toDirectImageUrl(selectedItem.image_url)}
+                alt={selectedItem.caption}
+                className="h-auto w-full object-cover"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://placehold.co/1200x800/emerald-900/gold?text=Gambar+tidak+tersedia"; }}
+              />
+              <div className="bg-cream p-6">
+                <h2 className="font-display text-2xl font-bold text-emerald-950">{selectedItem.caption}</h2>
+                {selectedItem.nama_kegiatan && <p className="mt-1 text-sm font-bold text-emerald-800">{selectedItem.nama_kegiatan}</p>}
+                {selectedItem.tanggal && (
+                  <p className="mt-1 text-xs text-emerald-950/60">
+                    {new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(selectedItem.tanggal))}
+                  </p>
+                )}
+                {selectedItem.deskripsi && <p className="mt-3 text-sm leading-relaxed text-emerald-950/70">{selectedItem.deskripsi}</p>}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

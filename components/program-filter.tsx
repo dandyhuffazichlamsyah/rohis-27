@@ -2,6 +2,7 @@
 
 import { CalendarCheck, Clock, MapPin, UsersRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Database } from "@/lib/database.types";
 
 const staticCategories = ["Semua", "Kajian", "Sosial", "Shalat"] as const;
@@ -108,10 +109,13 @@ export function ProgramFilter() {
 
   return (
     <div>
-      <div className="flex flex-wrap justify-center gap-3">
+      <motion.div className="flex flex-wrap justify-center gap-3" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}>
         {categories.map((category) => (
-          <button
+          <motion.button
             key={category}
+            variants={{ hidden: { opacity: 0, y: 10, scale: 0.9 }, visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" as const } } }}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setActiveCategory(category)}
             className={`rounded-full px-5 py-2.5 text-sm font-bold transition ${activeCategory === category
               ? "bg-emerald-900 text-white shadow-glow"
@@ -119,9 +123,9 @@ export function ProgramFilter() {
               }`}
           >
             {category}
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
 
       {!hasApiData && !loading && (
         <p className="mt-6 text-center text-xs text-emerald-950/40">Menampilkan program default — tambahkan kegiatan di admin untuk data real-time.</p>
@@ -130,22 +134,33 @@ export function ProgramFilter() {
       {loading ? (
         <p className="mt-10 text-center text-sm text-emerald-950/60">Memuat program kegiatan...</p>
       ) : (
-        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {filteredPrograms.map((program) => (
-            <article key={program.id} className="rounded-[2rem] border border-emerald-900/10 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-glow">
-              <div className="flex items-center justify-between gap-4">
-                <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-bold text-emerald-900">{program.category}</span>
-                <CalendarCheck className="h-5 w-5 text-gold" />
-              </div>
-              <h2 className="mt-5 font-display text-3xl font-bold text-emerald-950">{program.title}</h2>
-              <p className="mt-3 text-sm leading-6 text-emerald-950/65">{program.description}</p>
-              <div className="mt-6 grid gap-3 text-sm text-emerald-950/70">
-                <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" /> {program.schedule}</span>
-                <span className="flex items-center gap-2"><UsersRound className="h-4 w-4 text-gold" /> {program.participants}</span>
-              </div>
-            </article>
-          ))}
-        </div>
+        <motion.div layout className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <AnimatePresence mode="popLayout">
+            {filteredPrograms.map((program, i) => (
+              <motion.article
+                key={program.id}
+                layout
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.35, delay: i * 0.05, ease: "easeOut" as const }}
+                whileHover={{ y: -6, boxShadow: "0 20px 40px -12px rgba(6,78,59,0.12)" }}
+                className="rounded-[2rem] border border-emerald-900/10 bg-white/80 p-6 shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-bold text-emerald-900">{program.category}</span>
+                  <CalendarCheck className="h-5 w-5 text-gold" />
+                </div>
+                <h2 className="mt-5 font-display text-3xl font-bold text-emerald-950">{program.title}</h2>
+                <p className="mt-3 text-sm leading-6 text-emerald-950/65">{program.description}</p>
+                <div className="mt-6 grid gap-3 text-sm text-emerald-950/70">
+                  <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" /> {program.schedule}</span>
+                  <span className="flex items-center gap-2"><UsersRound className="h-4 w-4 text-gold" /> {program.participants}</span>
+                </div>
+              </motion.article>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   );
