@@ -1,4 +1,4 @@
-# Al-Hikmah SMAN 27
+# Rohis SMAN 27
 
 Website Rohis SMAN 27 berbasis Next.js App Router, Tailwind CSS, dan siap dikembangkan untuk integrasi Supabase serta deployment Vercel.
 
