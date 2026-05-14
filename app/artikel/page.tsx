@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CalendarDays, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { PageHero } from "@/components/page-hero";
 import { articles as fallbackArticles } from "@/lib/content";
 import type { Database } from "@/lib/database.types";
@@ -49,22 +50,29 @@ export default function ArtikelPage() {
           {loading ? (
             <p className="col-span-full text-center text-sm text-emerald-950/60">Memuat artikel...</p>
           ) : (
-            displayArticles.map((article, index) => (
-              <article key={article.id} className={`overflow-hidden rounded-[2rem] border border-emerald-900/10 bg-white/80 shadow-sm ${index === 0 ? "md:col-span-2 md:grid md:grid-cols-[1.1fr_0.9fr]" : ""}`}>
-                <div className={`min-h-64 bg-gradient-to-br ${article.gradient ?? "from-emerald-950 to-emerald-700"} p-6 text-white`}>
-                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gold">{article.tag ?? article.tipe}</span>
-                  <h2 className="mt-20 max-w-xl font-display text-4xl font-bold">{article.judul}</h2>
-                </div>
-                <div className="p-6">
-                  <div className="flex flex-wrap gap-4 text-xs font-semibold text-emerald-950/55">
-                    <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold" /> {article.date ?? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(article.created_at))}</span>
-                    <span className="flex items-center gap-2"><UserRound className="h-4 w-4 text-gold" /> {article.author_name ?? "Tim Rohis"}</span>
+            <motion.div className="contents" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}>
+              {displayArticles.map((article, index) => (
+                <motion.article
+                  key={article.id}
+                  variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } } }}
+                  whileHover={{ y: -4 }}
+                  className={`overflow-hidden rounded-[2rem] border border-emerald-900/10 bg-white/80 shadow-sm ${index === 0 ? "md:col-span-2 md:grid md:grid-cols-[1.1fr_0.9fr]" : ""}`}
+                >
+                  <div className={`min-h-64 bg-gradient-to-br ${article.gradient ?? "from-emerald-950 to-emerald-700"} p-6 text-white`}>
+                    <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-gold">{article.tag ?? article.tipe}</span>
+                    <h2 className="mt-20 max-w-xl font-display text-4xl font-bold">{article.judul}</h2>
                   </div>
-                  <p className="mt-5 leading-7 text-emerald-950/68">{article.excerpt ?? article.content_body?.slice(0, 120) + "..."}</p>
-                  <Link href={`/artikel/${article.slug ?? article.id}`} className="mt-6 inline-flex rounded-full bg-emerald-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800">Baca Artikel</Link>
-                </div>
-              </article>
-            ))
+                  <div className="p-6">
+                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-emerald-950/55">
+                      <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold" /> {article.date ?? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(article.created_at))}</span>
+                      <span className="flex items-center gap-2"><UserRound className="h-4 w-4 text-gold" /> {article.author_name ?? "Tim Rohis"}</span>
+                    </div>
+                    <p className="mt-5 leading-7 text-emerald-950/68">{article.excerpt ?? article.content_body?.slice(0, 120) + "..."}</p>
+                    <Link href={`/artikel/${article.slug ?? article.id}`} className="mt-6 inline-flex rounded-full bg-emerald-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800">Baca Artikel</Link>
+                  </div>
+                </motion.article>
+              ))}
+            </motion.div>
           )}
         </div>
       </section>

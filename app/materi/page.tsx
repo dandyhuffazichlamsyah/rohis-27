@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { BookOpenText, CalendarDays, Download, FileText, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { PageHero } from "@/components/page-hero";
 import type { Database } from "@/lib/database.types";
 
@@ -52,13 +53,16 @@ export default function MateriPage() {
 
       <section className="px-4 pb-24 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-8 flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-2 rounded-full bg-gold/15 px-3 py-2 text-sm font-bold text-emerald-900">
+          <motion.div className="mb-8 flex flex-wrap items-center gap-3" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }}>
+            <motion.span variants={{ hidden: { opacity: 0, scale: 0.9 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } } }} className="inline-flex items-center gap-2 rounded-full bg-gold/15 px-3 py-2 text-sm font-bold text-emerald-900">
               <Filter className="h-4 w-4" /> Filter:
-            </span>
+            </motion.span>
             {tipes.map((t) => (
-              <button
+              <motion.button
                 key={t}
+                variants={{ hidden: { opacity: 0, y: 10, scale: 0.9 }, visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" as const } } }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setActive(t)}
                 className={`rounded-full border px-4 py-2 text-sm font-bold transition ${active === t
                   ? "border-gold bg-emerald-900 text-white"
@@ -66,9 +70,9 @@ export default function MateriPage() {
                   }`}
               >
                 {tipeLabels[t] ?? t}
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
 
           {loading ? (
             <p className="text-center text-sm text-emerald-950/60">Memuat materi...</p>
@@ -78,51 +82,62 @@ export default function MateriPage() {
               <p className="mt-3 text-sm font-semibold text-emerald-950/60">Belum ada materi.</p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((item) => (
-                <article key={item.id} className="flex flex-col overflow-hidden rounded-[2rem] border border-emerald-900/10 bg-white/80 shadow-sm transition hover:shadow-md">
-                  {isImageUrl(item.image_url) ? (
-                    <div className="relative h-48 w-full">
-                      <img src={toDirectImageUrl(item.image_url)!} alt={item.judul} className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
-                      <span className="absolute left-4 top-4 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
-                        {item.tipe}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className={`bg-gradient-to-br p-6 text-white ${item.tipe === "Artikel"
-                      ? "from-emerald-950 to-emerald-700"
-                      : item.tipe === "Materi"
-                        ? "from-gold to-amber-300 text-emerald-950"
-                        : "from-teal-900 to-emerald-500"
-                      }`}>
-                      <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest">
-                        {item.tipe}
-                      </span>
-                      <h2 className="mt-4 font-display text-2xl font-bold leading-tight">{item.judul}</h2>
-                    </div>
-                  )}
-                  <div className="flex flex-1 flex-col p-6">
-                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-emerald-950/55">
-                      <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold" /> {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(item.created_at))}</span>
-                    </div>
-                    {item.content_body ? (
-                      <p className="mt-4 line-clamp-3 text-sm leading-7 text-emerald-950/68">{item.content_body}</p>
-                    ) : null}
-                    <div className="mt-auto pt-5">
-                      {item.file_url ? (
-                        <a href={item.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-emerald-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800">
-                          <Download className="h-4 w-4" /> Unduh File
-                        </a>
-                      ) : item.content_body ? (
-                        <Link href={`/materi/${item.id}`} className="inline-flex items-center gap-2 rounded-full bg-cream px-4 py-2 text-sm font-bold text-emerald-950 ring-1 ring-emerald-900/10 transition hover:bg-emerald-900 hover:text-white">
-                          <BookOpenText className="h-4 w-4" /> Baca Konten
-                        </Link>
+            <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <AnimatePresence mode="popLayout">
+                {filtered.map((item, i) => (
+                  <motion.article
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.35, delay: i * 0.05, ease: "easeOut" as const }}
+                    whileHover={{ y: -5, boxShadow: "0 16px 32px -10px rgba(6,78,59,0.12)" }}
+                    className="flex flex-col overflow-hidden rounded-[2rem] border border-emerald-900/10 bg-white/80 shadow-sm"
+                  >
+                    {isImageUrl(item.image_url) ? (
+                      <div className="relative h-48 w-full">
+                        <img src={toDirectImageUrl(item.image_url)!} alt={item.judul} className="h-full w-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                        <span className="absolute left-4 top-4 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
+                          {item.tipe}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className={`bg-gradient-to-br p-6 text-white ${item.tipe === "Artikel"
+                        ? "from-emerald-950 to-emerald-700"
+                        : item.tipe === "Materi"
+                          ? "from-gold to-amber-300 text-emerald-950"
+                          : "from-teal-900 to-emerald-500"
+                        }`}>
+                        <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-widest">
+                          {item.tipe}
+                        </span>
+                        <h2 className="mt-4 font-display text-2xl font-bold leading-tight">{item.judul}</h2>
+                      </div>
+                    )}
+                    <div className="flex flex-1 flex-col p-6">
+                      <div className="flex flex-wrap gap-4 text-xs font-semibold text-emerald-950/55">
+                        <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gold" /> {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(new Date(item.created_at))}</span>
+                      </div>
+                      {item.content_body ? (
+                        <p className="mt-4 line-clamp-3 text-sm leading-7 text-emerald-950/68">{item.content_body}</p>
                       ) : null}
+                      <div className="mt-auto pt-5">
+                        {item.file_url ? (
+                          <a href={item.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-emerald-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800">
+                            <Download className="h-4 w-4" /> Unduh File
+                          </a>
+                        ) : item.content_body ? (
+                          <Link href={`/materi/${item.id}`} className="inline-flex items-center gap-2 rounded-full bg-cream px-4 py-2 text-sm font-bold text-emerald-950 ring-1 ring-emerald-900/10 transition hover:bg-emerald-900 hover:text-white">
+                            <BookOpenText className="h-4 w-4" /> Baca Konten
+                          </Link>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </motion.article>
+                ))}
+              </AnimatePresence>
+            </motion.div>
           )}
         </div>
       </section>
