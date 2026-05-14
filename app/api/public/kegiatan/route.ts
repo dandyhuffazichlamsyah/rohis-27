@@ -21,5 +21,8 @@ export async function GET() {
   }
 
   console.log("[public/kegiatan] rows returned:", data?.length ?? 0);
-  return NextResponse.json({ data: data ?? [], source: "supabase" });
+  return NextResponse.json(
+    { data: data ?? [], source: "supabase" },
+    { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate" } }
+  );
 }

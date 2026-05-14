@@ -33,7 +33,7 @@ export function GalleryLightbox() {
   const [hasRealData, setHasRealData] = useState(false);
 
   useEffect(() => {
-    fetch("/api/public/galeri", { cache: "no-store" })
+    fetch(`/api/public/galeri?t=${Date.now()}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((result) => {
         if (result.data?.length) {
