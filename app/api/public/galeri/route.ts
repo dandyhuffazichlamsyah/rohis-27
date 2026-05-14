@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const supabase = createSupabaseAdminClient();
 
@@ -11,8 +13,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("galeri")
     .select("*")
-    .order("created_at", { ascending: false })
-    .limit(20);
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("[public/galeri] Supabase error:", error.message);

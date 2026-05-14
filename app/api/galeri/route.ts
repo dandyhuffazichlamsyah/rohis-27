@@ -18,7 +18,7 @@ export async function GET() {
     });
   }
 
-  const { data, error } = await supabase.from("galeri").select("*").order("created_at", { ascending: false }).limit(20);
+  const { data, error } = await supabase.from("galeri").select("*").order("created_at", { ascending: false });
 
   if (error) {
     return NextResponse.json({ message: error.message, data: [], source: "fallback" }, { status: 200 });
