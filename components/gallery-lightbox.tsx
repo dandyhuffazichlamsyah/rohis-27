@@ -116,12 +116,14 @@ export function GalleryLightbox() {
               <button onClick={() => setSelectedItem(null)} className="absolute right-5 top-5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-950/50 text-white ring-1 ring-white/20" aria-label="Tutup galeri">
                 <X className="h-5 w-5" />
               </button>
-              <img
-                src={toDirectImageUrl(selectedItem.image_url)}
-                alt={selectedItem.caption}
-                className="h-auto w-full object-cover"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://placehold.co/1200x800/emerald-900/gold?text=Gambar+tidak+tersedia"; }}
-              />
+              <div className="flex max-h-[75vh] w-full items-center justify-center overflow-hidden bg-emerald-950/5">
+                <img
+                  src={toDirectImageUrl(selectedItem.image_url)}
+                  alt={selectedItem.caption}
+                  className="max-h-[75vh] max-w-full object-contain"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = "https://placehold.co/1200x800/emerald-900/gold?text=Gambar+tidak+tersedia"; }}
+                />
+              </div>
               <div className="bg-cream p-6">
                 <h2 className="font-display text-2xl font-bold text-emerald-950">{selectedItem.caption}</h2>
                 {selectedItem.nama_kegiatan && <p className="mt-1 text-sm font-bold text-emerald-800">{selectedItem.nama_kegiatan}</p>}
