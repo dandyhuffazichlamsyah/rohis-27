@@ -35,6 +35,7 @@ export function GalleryLightbox() {
   const [items, setItems] = useState<GaleriItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<GaleriItem | null>(null);
   const [hasRealData, setHasRealData] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`/api/public/galeri?t=${Date.now()}`, { cache: "no-store" })
@@ -51,19 +52,32 @@ export function GalleryLightbox() {
       .catch(() => {
         setItems(demoItems);
         setHasRealData(false);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
+
+  if (loading) {
+    return (
+      <div className="py-16 text-center">
+        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-emerald-900/20 border-t-emerald-900" />
+        <p className="mt-3 text-sm text-emerald-950/60">Memuat galeri...</p>
+      </div>
+    );
+  }
 
   return (
     <>
       {!hasRealData && (
-        <p className="mb-6 text-center text-xs text-emerald-950/40">Menampilkan galeri demo — tambahkan foto di admin untuk data real-time.</p>
+        <p className="mb-6 text-center text-xs text-emerald-950/60">Menampilkan galeri demo — tambahkan foto di admin untuk data real-time.</p>
       )}
-      <motion.div className="columns-1 gap-5 sm:columns-2 lg:columns-3" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}>
-        {items.map((item) => (
+      <div className="columns-1 gap-5 sm:columns-2 lg:columns-3">
+        {items.map((item, i) => (
           <motion.button
             key={item.id}
-            variants={{ hidden: { opacity: 0, y: 30, scale: 0.95 }, visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: "easeOut" as const } } }}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5, delay: i * 0.06, ease: "easeOut" as const }}
             whileHover={{ y: -6, scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setSelectedItem(item)}
@@ -86,7 +100,7 @@ export function GalleryLightbox() {
             </div>
           </motion.button>
         ))}
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {selectedItem && (
